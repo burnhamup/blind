@@ -7,5 +7,5 @@ class Hero(Sprite):
         Sprite.__init__(self)
         self.image = load_image("placeholder.gif")
         self.rect = self.image.get_rect()
-        self.rect.center = (50, 50)
+        self.rect.center = (100, 100)
 
