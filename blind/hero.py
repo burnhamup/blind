@@ -19,7 +19,6 @@ class Hero(Sprite):
         self.level = level
 
     def move(self, direction, start):
-        print "Move Called"
         self.directions[direction] = start
 
     def update(self):

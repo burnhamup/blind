@@ -1,6 +1,6 @@
 from pygame import sprite
 from blind.hero import Hero
-from blind.input import Keyboard
+from blind.input import Keyboard, Controller
 from blind.maze import Wall
 
 __author__ = 'Chris'
@@ -21,6 +21,7 @@ class Level(object):
         self.game_objects.add(self.walls)
 
         self.keyboard = Keyboard(self.player)
+        self.controller = Controller(self.player)
 
     def get_walls(self):
         return self.walls
@@ -34,5 +35,7 @@ class Level(object):
 
     def event(self, event):
         self.keyboard.event(event)
+        self.controller.event(event)
+
 
 
