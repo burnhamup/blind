@@ -18,18 +18,25 @@ class Game(object):
         self.background = pygame.Surface(self.screen.get_size())
         self.background = self.background.convert()
         self.background.fill((250, 250, 250))
+        self.clock = pygame.time.Clock()
 
         self.level = Level()
 
     def run(self):
         while self.running:
+            self.clock.tick(60)
             for event in pygame.event.get():
                 if event.type == QUIT:
                     self.running = False
                 if event.type == KEYDOWN and event.key == K_ESCAPE:
                     self.running = False
+                self.level.event(event)
+            self.level.update()
+
             self.screen.blit(self.background, (0, 0))
+
             self.level.draw(self.screen)
+
             pygame.display.flip()
         pygame.quit()
 
