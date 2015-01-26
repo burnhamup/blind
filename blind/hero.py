@@ -34,6 +34,7 @@ class Hero(Sprite):
 
         if spritecollideany(self, self.level.get_walls()):
             self.rect = old_location
+            self.level.vibrate()
 
 
 
