@@ -2,6 +2,7 @@ from pygame import sprite
 from blind.hero import Hero
 from blind.input import Keyboard, Controller
 from blind.maze import Wall
+from blind.sound import Sound
 from blind.vibration import XinputVibration
 
 __author__ = 'Chris'
@@ -24,6 +25,7 @@ class Level(object):
         self.keyboard = Keyboard(self.player)
         self.controller = Controller(self.player)
         self.xinput = XinputVibration()
+        self.sound = Sound()
 
     def get_walls(self):
         return self.walls
@@ -35,6 +37,10 @@ class Level(object):
     def update(self):
         self.player.update()
         self.xinput.update()
+        if self.player.is_moving():
+            self.sound.play_footstep()
+        else:
+            self.sound.stop_footstep()
 
     def event(self, event):
         self.keyboard.event(event)
