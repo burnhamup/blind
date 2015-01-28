@@ -20,6 +20,7 @@ class Hero(Sprite):
 
     def move(self, direction, start):
         self.directions[direction] = start
+        # self.level.sound.play_ping(direction)
 
     def update(self):
         old_location = self.rect.copy()
