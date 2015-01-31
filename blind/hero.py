@@ -1,62 +1,74 @@
-import math
-import pygame
 from pygame.sprite import Sprite, spritecollideany
 from blind.util import load_image
 
 
 class Hero(Sprite):
     UP = 0
-    DOWN = 1
-    LEFT = 2
-    RIGHT = 3
+    RIGHT = 1
+    DOWN = 2
+    LEFT = 3
+    FORWARD = 4
+    BACKWARD = 5
     DIRECTIONS = [UP, DOWN, LEFT, RIGHT]
+    MOTIONS = [FORWARD, BACKWARD]
+
     def __init__(self, level):
 
         Sprite.__init__(self)
-        self.image = load_image("placeholder.gif")
+        self.images = {
+            self.UP: load_image("zph1_bk1.gif"),
+            self.LEFT: load_image("zph1_lf1.gif"),
+            self.RIGHT: load_image("zph1_rt1.gif"),
+            self.DOWN: load_image("zph1_fr1.gif")
+        }
+        self.direction = self.DOWN
+        self.image = self.images[self.DOWN]
         self.rect = self.image.get_rect()
         self.rect.center = (100, 100)
-        self.x_float, self.y_float = self.rect.x, self.rect.y
-        self.directions = {direction: False for direction in Hero.DIRECTIONS}
+        self.motion = {direction: False for direction in Hero.MOTIONS}
         self.speed = 2
-        self.rotation_speed = math.pi / 2
         self.level = level
-        self.angle = 0.0
-        self.x_angle = math.cos(self.angle)
-        self.y_angle = math.sin(self.angle)
+
 
     def move(self, direction, start):
         if direction in [self.LEFT, self.RIGHT] and start:
             if direction == self.LEFT:
-                self.angle -= self.rotation_speed
+                self.direction = (self.direction - 1) % 4
             if direction == self.RIGHT:
-                self.angle += self.rotation_speed
-            print math.degrees(self.angle)
-            self.x_angle = math.cos(self.angle)
-            self.y_angle = math.sin(self.angle)
+                self.direction = (self.direction + 1) % 4
         elif direction in [self.UP, self.DOWN]:
-            self.directions[direction] = start
+            motion = self.FORWARD if direction == self.UP else self.BACKWARD
+            self.motion[motion] = start
         # self.level.sound.play_ping(direction)
 
     def update(self):
+        self.image = self.images[self.direction]
         old_location = self.rect.copy()
-        old_x_float, old_y_float = self.x_float, self.y_float
-        if self.directions[Hero.UP]:
-            self.x_float += self.speed * self.x_angle
-            self.y_float += self.speed * self.y_angle
-        if self.directions[Hero.DOWN]:
-            self.x_float -= self.speed * self.x_angle
-            self.y_float -= self.speed * self.y_angle
+        if self.is_moving():
+            speed = self.get_speed()
 
-        self.rect.x, self.rect.y = self.x_float, self.y_float
+            if self.direction == self.UP:
+                self.rect.move_ip(0, -speed)
+            elif self.direction == self.DOWN:
+                self.rect.move_ip(0, speed)
+            elif self.direction == self.LEFT:
+                self.rect.move_ip(-speed, 0)
+            elif self.direction == self.RIGHT:
+                self.rect.move_ip(speed, 0)
 
-        if spritecollideany(self, self.level.get_walls()):
-            self.rect = old_location
-            self.x_float, self.y_float = old_x_float, old_y_float
-            self.level.vibrate()
+            if spritecollideany(self, self.level.get_walls()):
+                self.rect = old_location
+                self.level.vibrate()
+
     def is_moving(self):
-        return any(self.directions.values())
+        return any(self.motion.values())
 
+    def get_speed(self):
+        if self.motion[self.FORWARD]:
+            return self.speed
+        if self.motion[self.BACKWARD]:
+            return -self.speed / 2
+        return 0
 
 
 
