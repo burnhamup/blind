@@ -1,3 +1,4 @@
+import math
 from pygame.sprite import Sprite, spritecollideany
 from blind.util import load_image
 
@@ -11,6 +12,8 @@ class Hero(Sprite):
     BACKWARD = 5
     DIRECTIONS = [UP, DOWN, LEFT, RIGHT]
     MOTIONS = [FORWARD, BACKWARD]
+    #TODO Move this elsewhere
+    TILE_SIZE = 32
 
     def __init__(self, level):
 
@@ -28,24 +31,28 @@ class Hero(Sprite):
         self.motion = {direction: False for direction in Hero.MOTIONS}
         self.speed = 2
         self.level = level
-
+        self.moving_towards_distance = 0
+        self.moving_towards_speed = 0
 
     def move(self, direction, start):
-        if direction in [self.LEFT, self.RIGHT] and start:
-            if direction == self.LEFT:
-                self.direction = (self.direction - 1) % 4
-            if direction == self.RIGHT:
-                self.direction = (self.direction + 1) % 4
-        elif direction in [self.UP, self.DOWN]:
+        if not self.is_moving():
+            if direction in [self.LEFT, self.RIGHT] and start:
+                if direction == self.LEFT:
+                    self.direction = (self.direction - 1) % 4
+                if direction == self.RIGHT:
+                    self.direction = (self.direction + 1) % 4
+        if direction in [self.UP, self.DOWN]:
             motion = self.FORWARD if direction == self.UP else self.BACKWARD
             self.motion[motion] = start
+
         # self.level.sound.play_ping(direction)
+
 
     def update(self):
         self.image = self.images[self.direction]
         old_location = self.rect.copy()
         if self.is_moving():
-            speed = self.get_speed()
+            speed = self.moving_towards_speed
 
             if self.direction == self.UP:
                 self.rect.move_ip(0, -speed)
@@ -55,20 +62,20 @@ class Hero(Sprite):
                 self.rect.move_ip(-speed, 0)
             elif self.direction == self.RIGHT:
                 self.rect.move_ip(speed, 0)
+            self.moving_towards_distance -= abs(speed)
+        else:
+            if any(self.motion.values()):
+                self.moving_towards_distance = self.TILE_SIZE
+                self.moving_towards_speed = self.speed
+                if self.motion[self.BACKWARD]:
+                    self.moving_towards_speed /= -2
 
-            if spritecollideany(self, self.level.get_walls()):
-                self.rect = old_location
-                self.level.vibrate()
+            # if spritecollideany(self, self.level.get_walls()):
+            #     self.rect = old_location
+            #     self.level.vibrate()
 
     def is_moving(self):
-        return any(self.motion.values())
-
-    def get_speed(self):
-        if self.motion[self.FORWARD]:
-            return self.speed
-        if self.motion[self.BACKWARD]:
-            return -self.speed / 2
-        return 0
+        return self.moving_towards_distance > 0
 
 
 

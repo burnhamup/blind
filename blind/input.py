@@ -26,6 +26,7 @@ class Controller(object):
     def __init__(self, player):
         self.player = player
         joystick.init()
+        self.left_right_axis = None
         if joystick.get_count():
             self.joystick = joystick.Joystick(0)
             self.joystick.init()
@@ -37,8 +38,17 @@ class Controller(object):
         if event.type == JOYAXISMOTION:
             print "%s %s" % (event.axis, event.value)
             if event.axis == 0:
-                self.player.move(Hero.LEFT, event.value < -.5)
-                self.player.move(Hero.RIGHT, event.value > .5)
+                direction = None
+                if event.value < -.5:
+                    direction = Hero.LEFT
+                if event.value > .5:
+                    direction = Hero.RIGHT
+                if direction != self.left_right_axis:
+                    if direction:
+                        self.player.move(direction, True)
+                    else:
+                        self.player.move(self.left_right_axis, False)
+                self.left_right_axis = direction
             if event.axis == 1:
                 self.player.move(Hero.UP, event.value < -.5)
                 self.player.move(Hero.DOWN, event.value > .5)
