@@ -1,5 +1,6 @@
 import math
 from pygame.sprite import Sprite, spritecollideany
+from blind import util
 from blind.util import load_image
 
 
@@ -12,8 +13,6 @@ class Hero(Sprite):
     BACKWARD = 5
     DIRECTIONS = [UP, DOWN, LEFT, RIGHT]
     MOTIONS = [FORWARD, BACKWARD]
-    #TODO Move this elsewhere
-    TILE_SIZE = 32
 
     def __init__(self, level):
 
@@ -65,7 +64,7 @@ class Hero(Sprite):
             self.moving_towards_distance -= abs(speed)
         else:
             if any(self.motion.values()):
-                self.moving_towards_distance = self.TILE_SIZE
+                self.moving_towards_distance = util.TILE_SIZE
                 self.moving_towards_speed = self.speed
                 if self.motion[self.BACKWARD]:
                     self.moving_towards_speed /= -2

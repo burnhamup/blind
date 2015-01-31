@@ -2,6 +2,7 @@ import os
 import pygame
 
 img_dir = os.path.join(os.getcwd(), 'img')
+TILE_SIZE = 32
 
 
 def load_image(filename):
